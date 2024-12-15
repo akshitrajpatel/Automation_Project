@@ -1,48 +1,79 @@
 pipeline {
     agent any
+    
+    tools {
+        maven 'maven'
+        jdk 'JDK21'  // Make sure this matches the name you gave in Global Tool Configuration
+    }
 
     stages {
+		stage('Verify JAVA_HOME') {
+            steps {
+                bat 'echo %JAVA_HOME%'
+                bat 'java -version'
+            }
+        }
+        // Clone repository stage
         stage('Checkout') {
             steps {
-                git 'https://github.com/akshitrajpatel/Automation_Project.git'
+                // Checkout the code from your version control system (GitHub)
+                checkout scm
             }
         }
+
+        // Install dependencies using Maven (or Gradle if you're using that)
         stage('Build') {
             steps {
-                bat 'mvn clean package'
+                echo 'Building the project...'
+                // Build the project using Maven
+                bat 'mvn clean compile'
             }
         }
-        stage('Test') {
+
+        // Run the Selenium test cases
+        stage('Run Tests') {
             steps {
-                bat 'mvn clean test'
+                echo 'Running tests...'
+                // Execute the tests using Maven
+                 bat 'mvn test'
             }
+
+            // Post action for collecting results
             post {
-                success {
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: false,
-                        reportDir: 'target/surefire-reports/',
-                        reportFiles: 'emailable-report.html',
-                        reportName: 'HTML Report',
-                        reportTitles: '',
-                        useWrapperFileDirectly: true
-                    ])
-                }
-                failure {
-                    echo 'Ignoring failed test cases and proceeding with the pipeline'
+                always {
+                    // Archive test results (for TestNG)
+                    echo 'Publishing test results...'
+                    junit '**/target/surefire-reports/*.xml'
                 }
             }
         }
-        stage('Deployment') {
+
+        // Generate HTML Report if using TestNG or Allure
+        stage('Publish Report') {
             steps {
-                echo 'Deployment is done'
-            }
-        }
-        stage('Clean up') {
-            steps {
-                echo 'Clean up is done'
+                echo 'Publishing HTML report...'
+                // If you're using Allure for reporting
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    results: [[path: 'target/allure-results']]
+                ])
             }
         }
     }
+
+    // Post actions for cleaning up or other actions after the pipeline run
+    post {
+        always {
+            // You can clean up workspace or do any other post steps here
+            cleanWs()
+        }
+        failure {
+            echo "Build failed!"
+        }
+        success {
+            echo "Build succeeded!"
+        }
+    }
 }
+
