@@ -642,7 +642,7 @@ public class Test_FlipkartSite {
 //	This method provides test data from an Excel file
 	@DataProvider(name = "testData")
 	public Object[][] provideTestData() throws IOException {
-	    return Utils.provideTestData("C:\\Users\\varunbajpai\\eclipse-workspace\\FlipkartTesting\\src\\main\\java\\utils\\testdata\\TestData2.xlsx", "Sheet1");
+	    return Utils.provideTestData("src/main/java/utils/testdata/TestData2.xlsx", "Sheet1");
 	}
 	
 }
