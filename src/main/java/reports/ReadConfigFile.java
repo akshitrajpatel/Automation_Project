@@ -9,7 +9,7 @@ import java.io.IOException;
 public class ReadConfigFile {
 	
 	Properties properties;
-	String path = "C:\\Users\\varunbajpai\\eclipse-workspace\\FlipkartTesting\\src\\main\\resources\\Properties\\Config.properties";
+	String path = "src/main/resources/Properties/Config.properties";
 
 //	Basic Setup for Reading Config File
 	public ReadConfigFile() {
